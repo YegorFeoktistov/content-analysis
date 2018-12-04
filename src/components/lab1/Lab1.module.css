@@ -1,0 +1,73 @@
+.header {
+  font: 600 32px 'Roboto';
+}
+
+.textarea {
+  width: 500px;
+}
+
+.mainBlock {
+  display: flex;
+  flex-wrap: wrap;
+  height: calc(100vh - 148px);
+}
+
+.left {
+  margin-right: 25px;
+}
+
+.inputRow {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.parameters {
+  width: 440px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-left: 50px;
+}
+
+@media screen and (max-width: 1322px) {
+  .parameters {
+    margin: 0;
+  }
+}
+
+.paramDescr {
+  font: 400 18px/30px 'Roboto';
+  /* margin-bottom: 73px; */
+}
+
+.paramError {
+  color: red;
+  font: 400 18px/30px 'Roboto';
+}
+
+.textField {
+  width: 100%;
+}
+
+.stats {
+  padding-left: 25px;
+  border-left: 1px solid rgb(212, 212, 212);
+  height: 100%;
+  box-sizing: border-box;
+  flex-grow: 1;
+  position: relative;
+}
+
+.statsHeader {
+  font: 500 24px/30px 'Roboto';
+}
+
+.statsList {
+  position: absolute;
+  top: 30px;
+  bottom: 0;
+  left: 25px;
+  right: 0;
+  overflow: auto;
+  font: 300 16px 'Roboto';
+}

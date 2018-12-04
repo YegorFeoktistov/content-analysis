@@ -1,0 +1,86 @@
+.appWrap {
+  display: flex;
+}
+
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 50px;
+}
+
+.App-header {
+  background-color: #282c34;
+  height: 70px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+  box-shadow:
+    0px 2px 4px -1px rgba(0, 0, 0, 0.2),
+    0px 4px 5px 0px rgba(0, 0, 0, 0.14),
+    0px 1px 10px 0px rgba(0, 0, 0, 0.12);
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.sidebar {
+  width: 300px;
+  height: calc(100vh - 70px);
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.main {
+  padding: 20px;
+  width: calc(100vw - 300px);
+  height: calc(100vh - 70px);
+  box-shadow: 0px 0px 30px -4px rgba(0,0,0,0.98);
+  box-sizing: border-box;
+}
+
+.navHeader {
+  font: 400 30px 'Roboto';
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgb(212, 212, 212);
+}
+
+.navList {
+  padding: 0;
+}
+
+.navItem {
+  list-style: none;
+}
+
+.navItem:not(:last-child) {
+  margin-bottom: 20px;
+}
+
+.navLink {
+  text-decoration: none;
+  color: black;
+  font: 300 italic 24px/30px 'Roboto';
+  transition: all 0.1s;
+  user-select: none;
+}
+
+.navLink:hover {
+  font-size: 26px;
+}
+
+.navLink:active {
+  color: rgb(105, 105, 105);
+}

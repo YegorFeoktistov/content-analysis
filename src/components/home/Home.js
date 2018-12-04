@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
+import styles from './Home.module.css';
 
 export class Home extends Component {
   render() {
     return (
-      <div>
+      <h1 className={styles.header}>
         Home Page
-      </div>
+      </h1>
     );
   }
 }
