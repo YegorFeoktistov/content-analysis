@@ -1,18 +1,29 @@
 import React, { Component } from 'react';
-import { compact, indexOf, last } from 'lodash';
+import { compact, indexOf } from 'lodash';
 import TextField from '@material-ui/core/TextField';
 import styles from './Lab1.module.css';
 
 export class Lab1 extends Component {
   state = {
     text: '',
+    wordsNumber: 0,
     paramText: '',
     params: [],
+    stats: [],
     paramAlreadyExistsError: false
   }
 
+  countWords = txt => txt
+      .trim()
+      .split(' ')
+      .filter(item => item !== '' )
+      .length;
+
   textareaChangeHanlder = e =>
     this.setState({ text: e.target.value });
+
+  textareaBlurHandler = e =>
+    this.setState({ wordsNumber: this.countWords(e.target.value) });
 
   paramChangeHandler = e =>
     this.setState({ paramText: e.target.value });
@@ -26,36 +37,45 @@ export class Lab1 extends Component {
 
     const isUniq = indexOf(params, paramText) === -1;
 
+    (isUniq && paramText) && this.processParam(paramText);
+
     isUniq
-      ? this.setState(
-        prevState => {
-          return {
-            paramText: '',
-            params: compact([...params, paramText]),
-            paramAlreadyExistsError: false
-          }
-        },
-        this.searchParamInText
-      )
+      ? this.setState({
+        paramText: '',
+        params: compact([...params, paramText]),
+        paramAlreadyExistsError: false
+      })
       : (this.setState({
         paramText: '',
         paramAlreadyExistsError: true
       }))
   };
 
-  searchParamInText = () => {
-    const { text, params } = this.state;
-    const regexp = new RegExp('\\b' + `(${last(params)})` + '\\b', 'g');
+  processParam = param => {
+    const { text, wordsNumber, stats } = this.state;
+    const regexp = new RegExp(`\\b(${param})\\b`, 'g');
 
     const count = (text.match(regexp) || []).length;
-    console.log(count);
+
+    const percent = `${Math.round((count / wordsNumber) * 10000) / 100}%`;
+
+    this.setState({
+      stats: [
+        ...stats,
+        {
+          param,
+          count,
+          percent
+        }
+      ]
+    });
   };
 
   render() {
     const {
       text,
       paramText,
-      params,
+      stats,
       paramAlreadyExistsError
     } = this.state;
 
@@ -76,6 +96,7 @@ export class Lab1 extends Component {
                 className={styles.textarea}
                 margin="normal"
                 onChange={this.textareaChangeHanlder}
+                onBlur={this.textareaBlurHandler}
                 value={text}
               />
               <div className={styles.parameters}>
@@ -109,7 +130,11 @@ export class Lab1 extends Component {
             </h2>
             <div className={styles.statsList}>
               {
-                params.map((item, index) => (<p key={index} className={styles.statsItem}>{item}</p>))
+                stats.map((item, index) => (
+                  <p key={index} className={styles.statsItem}>
+                    {`${item.param} - ${item.count} | ${item.percent}`}
+                  </p>
+                ))
               }
             </div>
           </div>
