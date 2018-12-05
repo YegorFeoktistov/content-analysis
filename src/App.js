@@ -25,16 +25,16 @@ class App extends Component {
               <h1 className={styles.navHeader} >Links to works</h1>
               <ul className={styles.navList}>
                 <li className={styles.navItem}>
-                  <Link to="/" className={styles.navLink} >Home</Link>
+                  <Link to="/" className={styles.navLink}>Home</Link>
                 </li>
                 <li className={styles.navItem}>
-                  <Link to="lab1" className={styles.navLink} >Lab 1</Link>
+                  <Link to="lab1" className={styles.navLink}>Lab 1</Link>
                 </li>
                 <li className={styles.navItem}>
-                  <Link to="lab2" className={styles.navLink} >Lab 2</Link>
+                  <Link to="lab2" className={styles.navLink}>Lab 2</Link>
                 </li>
                 <li className={styles.navItem}>
-                  <Link to="lab3" className={styles.navLink} >Lab 3</Link>
+                  <Link to="lab3" className={styles.navLink}>Lab 3</Link>
                 </li>
               </ul>
             </div>
