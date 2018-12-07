@@ -3,6 +3,9 @@ import { compact, indexOf } from 'lodash';
 import TextField from '@material-ui/core/TextField';
 import styles from './Lab1.module.css';
 
+import WebWorker from '../../webWorker';
+import countInTextWorker from './../../workers/countInTextWorker.js';
+
 export class Lab1 extends Component {
   state = {
     text: '',
@@ -14,10 +17,10 @@ export class Lab1 extends Component {
   }
 
   countWords = txt => txt
-      .trim()
-      .split(' ')
-      .filter(item => item !== '' )
-      .length;
+    .trim()
+    .split(' ')
+    .filter(item => item !== '')
+    .length;
 
   textareaChangeHanlder = e =>
     this.setState({ text: e.target.value });
@@ -39,35 +42,43 @@ export class Lab1 extends Component {
 
     (isUniq && paramText) && this.processParam(paramText);
 
-    isUniq
-      ? this.setState({
-        paramText: '',
-        params: compact([...params, paramText]),
-        paramAlreadyExistsError: false
-      })
-      : (this.setState({
-        paramText: '',
-        paramAlreadyExistsError: true
-      }))
+    this.setState({
+      paramText: '',
+      paramAlreadyExistsError: !isUniq,
+      params: isUniq ? compact([...params, paramText]) : params
+    });
   };
 
   processParam = param => {
     const { text, wordsNumber, stats } = this.state;
     const regexp = new RegExp(`\\b(${param})\\b`, 'g');
 
-    const count = (text.match(regexp) || []).length;
+    this.worker = new WebWorker(countInTextWorker);
 
-    const percent = `${Math.round((count / wordsNumber) * 10000) / 100}%`;
+    this.worker.onmessage = e => {
+      const count = e.data;
 
-    this.setState({
-      stats: [
-        ...stats,
-        {
-          param,
-          count,
-          percent
-        }
-      ]
+      const percent = count
+        ? `${Math.round((count / wordsNumber) * 10000) / 100}%`
+        : `0%`;
+
+      this.setState({
+        stats: [
+          ...stats,
+          {
+            param,
+            count,
+            percent
+          }
+        ]
+      });
+
+      this.worker.terminate();
+    };
+
+    this.worker.postMessage({
+      text,
+      regexp
     });
   };
 
@@ -105,8 +116,8 @@ export class Lab1 extends Component {
                 </p>
                 {
                   paramAlreadyExistsError &&
-                    <p className={styles.paramError}>
-                      You've already searched this value!
+                  <p className={styles.paramError}>
+                    You've already searched this value!
                     </p>
                 }
                 <TextField
@@ -132,7 +143,12 @@ export class Lab1 extends Component {
               {
                 stats.map((item, index) => (
                   <p key={index} className={styles.statsItem}>
-                    {`${item.param} - ${item.count} | ${item.percent}`}
+                    <span className={styles.statItemName}>
+                      {`${item.param}`}
+                    </span>
+                    <span className={styles.statItemValues}>
+                      {`${item.count} | ${item.percent}`}
+                    </span>
                   </p>
                 ))
               }

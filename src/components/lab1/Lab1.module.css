@@ -76,3 +76,14 @@
 .statsItem:not(:last-child) {
   margin-bottom: 10px;
 }
+
+.statItemName {
+  font-weight: 500;
+  display: inline-block;
+  width: 50%;
+}
+
+.statItemValues {
+  display: inline-block;
+  width: 50%;
+}
