@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { compact, indexOf } from 'lodash';
+import { compact, indexOf, find } from 'lodash';
 import TextField from '@material-ui/core/TextField';
 import styles from './Lab1.module.css';
 
 import WebWorker from '../../webWorker';
 import countInTextWorker from './../../workers/countInTextWorker.js';
+import { genId } from '../../heplers/genId';
 
 export class Lab1 extends Component {
   state = {
@@ -13,7 +14,9 @@ export class Lab1 extends Component {
     paramText: '',
     params: [],
     stats: [],
-    paramAlreadyExistsError: false
+    categoryAlreadyExistsError: false,
+    categoryText: '',
+    categories: []
   }
 
   countWords = txt => txt
@@ -28,66 +31,148 @@ export class Lab1 extends Component {
   textareaBlurHandler = e =>
     this.setState({ wordsNumber: this.countWords(e.target.value) });
 
-  paramChangeHandler = e =>
-    this.setState({ paramText: e.target.value });
+  categoryChangeHandler = e =>
+    this.setState({ categoryText: e.target.value });
 
-  paramSubmitHandler = e => {
+  categorySubmitHandler = e => {
     if (e.key !== 'Enter') {
       return;
     }
 
-    const { params, paramText } = this.state;
+    const { categories, categoryText } = this.state;
 
-    const isUniq = indexOf(params, paramText) === -1;
+    if (!categoryText) {
+      return;
+    }
 
-    (isUniq && paramText) && this.processParam(paramText);
+    const isExisting = !!find(categories, {name: categoryText});
 
     this.setState({
-      paramText: '',
-      paramAlreadyExistsError: !isUniq,
-      params: isUniq ? compact([...params, paramText]) : params
+      categoryText: '',
+      categoryAlreadyExistsError: isExisting,
+      categories: isExisting
+        ? categories
+        : compact([
+          ...categories,
+          {
+            id: genId(),
+            name: categoryText,
+            average: 0,
+            params: []
+          }
+        ])
     });
+
+    // const { params, paramText } = this.state;
+
+    // const isUniq = indexOf(params, paramText) === -1;
+
+    // (isUniq && paramText) && this.processParam(paramText);
+
+    // this.setState({
+    //   paramText: '',
+    //   categoryAlreadyExistsError: !isUniq,
+    //   params: isUniq ? compact([...params, paramText]) : params
+    // });
   };
 
-  processParam = param => {
-    const { text, wordsNumber, stats } = this.state;
-    const regexp = new RegExp(`\\b(${param})\\b`, 'g');
+  paramSubmitHandler = (e, id) => {
+    if (e.key !== 'Enter') {
+      return;
+    }
 
-    this.worker = new WebWorker(countInTextWorker);
+    const { categories } = this.state;
 
-    this.worker.onmessage = e => {
-      const count = e.data;
+    const { value: name } = e.target;
+    const category = find(categories, { id });
+    const index = indexOf(categories, category)
 
-      const percent = count
-        ? `${Math.round((count / wordsNumber) * 10000) / 100}%`
-        : `0%`;
+    e.target.value = '';
 
-      this.setState({
-        stats: [
-          ...stats,
-          {
-            param,
-            count,
-            percent
-          }
-        ]
-      });
+    this.setState({
+      categories: [
+        ...categories.slice(0, index),
+        {
+          ...category,
+          params: [
+            ...category.params,
+            {
+              name,
+              count: 0,
+              percent: 0
+            }
+          ]
+        },
+        ...categories.slice(index + 1)
+      ]
+    })
+  };
 
-      this.worker.terminate();
-    };
+  // processParam = param => {
+  //   const { text, wordsNumber, stats } = this.state;
+  //   const regexp = new RegExp(`\\b(${param})\\b`, 'g');
 
-    this.worker.postMessage({
-      text,
-      regexp
-    });
+  //   this.worker = new WebWorker(countInTextWorker);
+
+  //   this.worker.onmessage = e => {
+  //     const count = e.data;
+
+  //     const percent = count
+  //       ? `${Math.round((count / wordsNumber) * 10000) / 100}%`
+  //       : `0%`;
+
+  //     this.setState({
+  //       stats: [
+  //         ...stats,
+  //         {
+  //           param,
+  //           count,
+  //           percent
+  //         }
+  //       ]
+  //     });
+
+  //     this.worker.terminate();
+  //   };
+
+  //   this.worker.postMessage({
+  //     text,
+  //     regexp
+  //   });
+  // };
+
+  renderCategories = () => {
+    const { categories } = this.state;
+
+    return categories.map(item => {
+      const { id, name, params } = item;
+
+      return (
+        <div key={id} className='categoryItem'>
+          <h2>{`Category: ${name}`}</h2>
+          <TextField
+            required
+            // error={categoryAlreadyExistsError}
+            id={`category-${id}-param-input`}
+            label="Params"
+            placeholder="Enter param here"
+            className={styles.textField}
+            margin="normal"
+            onKeyPress={e => this.paramSubmitHandler(e, id)}
+          />
+          {params.map((item, index) => (<p key={index}>{item.name}</p>))}
+        </div>
+      );
+    })
   };
 
   render() {
     const {
       text,
-      paramText,
+      // paramText,
+      categoryText,
       stats,
-      paramAlreadyExistsError
+      categoryAlreadyExistsError
     } = this.state;
 
     return (
@@ -99,7 +184,7 @@ export class Lab1 extends Component {
               <TextField
                 multiline
                 required
-                error={paramAlreadyExistsError}
+                error={categoryAlreadyExistsError}
                 id="lab1-textarea"
                 label="Source text"
                 rows="8"
@@ -115,24 +200,27 @@ export class Lab1 extends Component {
                   Enter search value here.<br />Each time you type a new value, previous will be saved.
                 </p>
                 {
-                  paramAlreadyExistsError &&
+                  categoryAlreadyExistsError &&
                   <p className={styles.paramError}>
                     You've already searched this value!
                     </p>
                 }
                 <TextField
                   required
-                  error={paramAlreadyExistsError}
-                  id="lab1-params-input"
-                  label="Search values"
-                  placeholder="Enter search values here"
+                  error={categoryAlreadyExistsError}
+                  id="lab1-categories-input"
+                  label="Categories"
+                  placeholder="Enter category here"
                   className={styles.textField}
                   margin="normal"
-                  onChange={this.paramChangeHandler}
-                  onKeyPress={this.paramSubmitHandler}
-                  value={paramText}
+                  onChange={this.categoryChangeHandler}
+                  onKeyPress={this.categorySubmitHandler}
+                  value={categoryText}
                 />
               </div>
+            </div>
+            <div className='categoryBlock'>
+              {this.renderCategories()}
             </div>
           </div>
           <div className={styles.stats}>

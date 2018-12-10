@@ -9,7 +9,6 @@
 .mainBlock {
   display: flex;
   flex-wrap: wrap;
-  height: calc(100vh - 148px);
 }
 
 .left {
@@ -19,6 +18,7 @@
 .inputRow {
   display: flex;
   flex-wrap: wrap;
+  margin-bottom: 20px;
 }
 
 .parameters {
@@ -27,12 +27,6 @@
   flex-direction: column;
   justify-content: space-between;
   margin-left: 50px;
-}
-
-@media screen and (max-width: 1322px) {
-  .parameters {
-    margin: 0;
-  }
 }
 
 .paramDescr {
@@ -52,7 +46,7 @@
 .stats {
   padding-left: 25px;
   border-left: 1px solid rgb(212, 212, 212);
-  height: 100%;
+  height: calc(100vh - 148px);
   box-sizing: border-box;
   flex-grow: 1;
   position: relative;
@@ -86,4 +80,37 @@
 .statItemValues {
   display: inline-block;
   width: 50%;
+}
+
+.categoryButtonText {
+  font: 300 20px 'Roboto';
+}
+
+@media screen and (max-width: 1322px) {
+  .parameters {
+    margin: 0;
+  }
+
+  .stats {
+    height: auto;
+    border: none;
+    padding: 0;
+  }
+
+  .statsList {
+    position: static;
+  }
+
+  .left {
+    width: 100%;
+    margin: 0;
+  }
+
+  .textarea {
+    width: 100%;
+  }
+
+  .parameters {
+    width: 100%;
+  }
 }
