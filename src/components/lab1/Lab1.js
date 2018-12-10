@@ -4,7 +4,7 @@ import TextField from '@material-ui/core/TextField';
 import styles from './Lab1.module.css';
 
 import WebWorker from '../../webWorker';
-import countInTextWorker from './../../workers/countInTextWorker.js';
+import qSortWorker from './../../workers/qSortWorker.js';
 import { genId } from '../../heplers/genId';
 
 export class Lab1 extends Component {
@@ -112,7 +112,7 @@ export class Lab1 extends Component {
   //   const { text, wordsNumber, stats } = this.state;
   //   const regexp = new RegExp(`\\b(${param})\\b`, 'g');
 
-  //   this.worker = new WebWorker(countInTextWorker);
+  //   this.worker = new WebWorker(qSortWorker);
 
   //   this.worker.onmessage = e => {
   //     const count = e.data;
@@ -164,6 +164,42 @@ export class Lab1 extends Component {
         </div>
       );
     })
+  };
+
+  start = () => {
+    const { categories, wordsNumber, text } = this.state;
+
+    this.worker = new WebWorker(qSortWorker);
+
+    this.worker.onmessage = e => {
+      const categories = e.data;
+
+      // const percent = count
+      //   ? `${Math.round((count / wordsNumber) * 10000) / 100}%`
+      //   : `0%`;
+
+      // this.setState({
+      //   stats: [
+      //     ...stats,
+      //     {
+      //       param,
+      //       count,
+      //       percent
+      //     }
+      //   ]
+      // });
+      this.setState({
+        categories: [...categories]
+      });
+
+      this.worker.terminate();
+    };
+
+    this.worker.postMessage({
+      categories: [...categories],
+      wordsNumber,
+      text
+    });
   };
 
   render() {
@@ -220,6 +256,7 @@ export class Lab1 extends Component {
               </div>
             </div>
             <div className='categoryBlock'>
+              <button onClick={this.start}>Start</button>
               {this.renderCategories()}
             </div>
           </div>
