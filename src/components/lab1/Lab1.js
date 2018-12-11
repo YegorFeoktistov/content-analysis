@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { compact, indexOf, find, isEmpty, reduce } from 'lodash';
+import { compact, indexOf, filter, find, isEmpty, map, reduce, includes } from 'lodash';
 import TextField from '@material-ui/core/TextField';
 import Fab from '@material-ui/core/Fab';
 import LinearProgress from '@material-ui/core/LinearProgress';
@@ -12,7 +12,7 @@ import * as muiStyles from './../../muiStyles';
 
 import WebWorker from '../../webWorker';
 import qSortWorker from './../../workers/qSortWorker.js';
-import { genId } from '../../heplers/genId';
+import { classnames, genId } from '../../heplers';
 
 export class Lab1 extends Component {
   state = {
@@ -22,7 +22,8 @@ export class Lab1 extends Component {
     categoryAlreadyExistsError: false,
     categoryText: '',
     categories: [],
-    totalAverage: 0
+    totalAverage: 0,
+    matchedIds: []
   }
 
   countWords = txt => txt
@@ -110,14 +111,19 @@ export class Lab1 extends Component {
   };
 
   renderCategories = () => {
-    const { categories, loading } = this.state;
+    const { categories, matchedIds, loading } = this.state;
 
     return categories.map(category => {
       const { id, name, params, average, error } = category;
 
       return (
         <div key={id} className='categoryItem'>
-          <h2 className={styles.categoryHeader}>
+          <h2
+            className={classnames([
+              styles.categoryHeader,
+              includes(matchedIds, id) && styles.categoryHeaderMatch
+            ])}
+          >
             <span className={styles.categoryName}>
               {name}
             </span>
@@ -174,9 +180,18 @@ export class Lab1 extends Component {
         ? Math.round((totalSum / categories.length) * 100) / 100
         : 0;
 
+      const maxValue = Math.max(...(map(categories, 'average')));
+      const matchedIds = !isEmpty(categories) && maxValue
+        ? map(
+            filter(categories, item => item.average === maxValue),
+            'id'
+          )
+        : [];
+
       this.setState({
         categories: [...categories],
         totalAverage,
+        matchedIds,
         loading: false
       });
 

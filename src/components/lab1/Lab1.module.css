@@ -70,6 +70,12 @@
 .categoryHeader {
   font: 400 24px/30px 'Roboto';
   display: flex;
+  transition: all 0.3s;
+}
+
+.categoryHeaderMatch {
+  color: green;
+  text-decoration: underline;
 }
 
 .categoryName {
