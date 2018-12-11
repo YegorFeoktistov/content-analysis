@@ -13,7 +13,7 @@ export default () => {
         return;
       }
 
-      category.params.forEach((param, pIndex) => {
+      category.params.forEach(param => {
         const regexp = new RegExp(`\\b(${param.name})\\b`, 'g');
 
         const count = (text.match(regexp) || []).length;
@@ -26,7 +26,7 @@ export default () => {
         param.percent = percent;
       });
 
-      const paramsCountSum = category.params.reduce((result, item) => result + item.count, 0);
+      const paramsCountSum = category.params.reduce(((result, item) => result + item.count), 0);
 
       category.average = (paramsCountSum && category.params.length)
         ? Math.round((paramsCountSum / category.params.length) * 100) / 100

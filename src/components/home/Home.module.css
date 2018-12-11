@@ -1,4 +1,22 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
 .header {
-  font: 600 42px 'Roboto';
+  font: 600 50px 'Roboto';
   text-align: center;
+  margin-bottom: 30px;
+}
+
+.header2 {
+  font: 500 36px 'Roboto';
+  text-align: center;
+}
+
+.header2:not(:last-child) {
+  margin-bottom: 30px;
 }

@@ -2,36 +2,44 @@
   font: 600 32px 'Roboto';
 }
 
-.textarea {
-  width: 500px;
-}
-
 .mainBlock {
   display: flex;
   flex-wrap: wrap;
 }
 
 .left {
-  margin-right: 25px;
+  box-sizing: border-box;
+  width: 50%;
+  padding-right: 25px;
+  border-right: 1px solid rgb(212, 212, 212);
 }
 
-.inputRow {
+.right {
+  position: relative;
+  box-sizing: border-box;
+  width: 50%;
+  height: calc(100vh - 148px);
+  padding-left: 25px;
+}
+
+.textarea {
+  width: 100%;
+}
+
+.buttonBlock {
   display: flex;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
+  margin-top: 20px;
 }
 
 .parameters {
-  width: 440px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  margin-left: 50px;
+  margin-top: 20px;
 }
 
 .paramDescr {
   font: 400 18px/22px 'Roboto';
-  /* margin-bottom: 73px; */
 }
 
 .paramError {
@@ -39,54 +47,62 @@
   font: 400 18px/30px 'Roboto';
 }
 
-.textField {
+.paramInput {
   width: 100%;
 }
 
-.stats {
-  padding-left: 25px;
-  border-left: 1px solid rgb(212, 212, 212);
-  height: calc(100vh - 148px);
-  box-sizing: border-box;
-  flex-grow: 1;
-  position: relative;
-}
-
-.statsHeader {
+.categoryBlockHeader {
   font: 500 24px/30px 'Roboto';
   margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
 }
 
-.statsList {
+.categoryBlock {
   position: absolute;
   top: 40px;
   bottom: 0;
   left: 25px;
   right: 0;
   overflow: auto;
-  font: 300 16px 'Roboto';
 }
 
-.statsItem:not(:last-child) {
-  margin-bottom: 10px;
+.categoryHeader {
+  font: 400 24px/30px 'Roboto';
+  display: flex;
 }
 
-.statItemName {
-  font-weight: 500;
+.categoryName {
   display: inline-block;
-  width: 50%;
+  flex-grow: 1;
 }
 
-.statItemValues {
+.categoryValue {
   display: inline-block;
-  width: 50%;
+  width: 100px;
 }
 
 .categoryButtonText {
   font: 300 20px 'Roboto';
 }
 
-@media screen and (max-width: 1322px) {
+.paramsBlock {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.param {
+  font: 300 16px 'Roboto';
+  display: inline-block;
+  box-sizing: border-box;
+}
+
+.param:not(:last-child) {
+  padding-right: 10px;
+}
+
+/* @media screen and (max-width: 1322px) {
   .parameters {
     margin: 0;
   }
@@ -113,4 +129,4 @@
   .parameters {
     width: 100%;
   }
-}
+} */

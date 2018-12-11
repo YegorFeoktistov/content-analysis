@@ -44,6 +44,7 @@
 }
 
 .main {
+  position: relative;
   padding: 20px;
   width: calc(100vw - 300px);
   height: calc(100vh - 70px);

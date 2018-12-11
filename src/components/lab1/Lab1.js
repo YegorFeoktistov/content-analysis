@@ -1,7 +1,14 @@
 import React, { Component } from 'react';
-import { compact, indexOf, find } from 'lodash';
+import { compact, indexOf, find, isEmpty, reduce } from 'lodash';
 import TextField from '@material-ui/core/TextField';
+import Fab from '@material-ui/core/Fab';
+import LinearProgress from '@material-ui/core/LinearProgress';
+
+import PlayArrow from '@material-ui/icons/PlayArrow';
+import Delete from '@material-ui/icons/Delete';
+
 import styles from './Lab1.module.css';
+import * as muiStyles from './../../muiStyles';
 
 import WebWorker from '../../webWorker';
 import qSortWorker from './../../workers/qSortWorker.js';
@@ -11,12 +18,11 @@ export class Lab1 extends Component {
   state = {
     text: '',
     wordsNumber: 0,
-    paramText: '',
-    params: [],
     stats: [],
     categoryAlreadyExistsError: false,
     categoryText: '',
-    categories: []
+    categories: [],
+    totalAverage: 0
   }
 
   countWords = txt => txt
@@ -45,7 +51,7 @@ export class Lab1 extends Component {
       return;
     }
 
-    const isExisting = !!find(categories, {name: categoryText});
+    const isExisting = !!find(categories, { name: categoryText });
 
     this.setState({
       categoryText: '',
@@ -58,22 +64,11 @@ export class Lab1 extends Component {
             id: genId(),
             name: categoryText,
             average: 0,
-            params: []
+            params: [],
+            error: false
           }
         ])
     });
-
-    // const { params, paramText } = this.state;
-
-    // const isUniq = indexOf(params, paramText) === -1;
-
-    // (isUniq && paramText) && this.processParam(paramText);
-
-    // this.setState({
-    //   paramText: '',
-    //   categoryAlreadyExistsError: !isUniq,
-    //   params: isUniq ? compact([...params, paramText]) : params
-    // });
   };
 
   paramSubmitHandler = (e, id) => {
@@ -85,7 +80,19 @@ export class Lab1 extends Component {
 
     const { value: name } = e.target;
     const category = find(categories, { id });
-    const index = indexOf(categories, category)
+    const index = indexOf(categories, category);
+
+    const isExist = !!find(category.params, { name });
+    const newParams = !isExist
+      ? [
+        ...category.params,
+        {
+          name,
+          count: 0,
+          percent: 0
+        }
+      ]
+      : [...category.params];
 
     e.target.value = '';
 
@@ -94,73 +101,56 @@ export class Lab1 extends Component {
         ...categories.slice(0, index),
         {
           ...category,
-          params: [
-            ...category.params,
-            {
-              name,
-              count: 0,
-              percent: 0
-            }
-          ]
+          params: newParams,
+          error: isExist
         },
         ...categories.slice(index + 1)
       ]
     })
   };
 
-  // processParam = param => {
-  //   const { text, wordsNumber, stats } = this.state;
-  //   const regexp = new RegExp(`\\b(${param})\\b`, 'g');
-
-  //   this.worker = new WebWorker(qSortWorker);
-
-  //   this.worker.onmessage = e => {
-  //     const count = e.data;
-
-  //     const percent = count
-  //       ? `${Math.round((count / wordsNumber) * 10000) / 100}%`
-  //       : `0%`;
-
-  //     this.setState({
-  //       stats: [
-  //         ...stats,
-  //         {
-  //           param,
-  //           count,
-  //           percent
-  //         }
-  //       ]
-  //     });
-
-  //     this.worker.terminate();
-  //   };
-
-  //   this.worker.postMessage({
-  //     text,
-  //     regexp
-  //   });
-  // };
-
   renderCategories = () => {
-    const { categories } = this.state;
+    const { categories, loading } = this.state;
 
-    return categories.map(item => {
-      const { id, name, params } = item;
+    return categories.map(category => {
+      const { id, name, params, average, error } = category;
 
       return (
         <div key={id} className='categoryItem'>
-          <h2>{`Category: ${name}`}</h2>
+          <h2 className={styles.categoryHeader}>
+            <span className={styles.categoryName}>
+              {name}
+            </span>
+            <span className={styles.categoryValue}>
+              {average}
+            </span>
+          </h2>
           <TextField
             required
-            // error={categoryAlreadyExistsError}
+            error={error}
             id={`category-${id}-param-input`}
             label="Params"
             placeholder="Enter param here"
-            className={styles.textField}
+            className={styles.paramInput}
             margin="normal"
             onKeyPress={e => this.paramSubmitHandler(e, id)}
+            disabled={loading}
           />
-          {params.map((item, index) => (<p key={index}>{item.name}</p>))}
+          {
+            error &&
+            <p className={styles.paramError}>
+              You've already entered this value!
+            </p>
+          }
+          <div className={styles.paramsBlock}>
+            {
+              params.map(
+                (item, index) => (
+                  <span key={index} className={styles.param}>{item.name} - {item.count} | {item.percent}%</span>
+                )
+              )
+            }
+          </div>
         </div>
       );
     })
@@ -169,27 +159,25 @@ export class Lab1 extends Component {
   start = () => {
     const { categories, wordsNumber, text } = this.state;
 
+    this.setState({ loading: true });
+
     this.worker = new WebWorker(qSortWorker);
 
     this.worker.onmessage = e => {
       const categories = e.data;
 
-      // const percent = count
-      //   ? `${Math.round((count / wordsNumber) * 10000) / 100}%`
-      //   : `0%`;
+      const totalSum = !isEmpty(categories)
+        ? reduce(categories, (result, item) => result + item.average, 0)
+        : 0;
 
-      // this.setState({
-      //   stats: [
-      //     ...stats,
-      //     {
-      //       param,
-      //       count,
-      //       percent
-      //     }
-      //   ]
-      // });
+      const totalAverage = totalSum
+        ? Math.round((totalSum / categories.length) * 100) / 100
+        : 0;
+
       this.setState({
-        categories: [...categories]
+        categories: [...categories],
+        totalAverage,
+        loading: false
       });
 
       this.worker.terminate();
@@ -202,81 +190,92 @@ export class Lab1 extends Component {
     });
   };
 
+  clearAll = () => {
+    this.setState({
+      text: '',
+      wordsNumber: 0,
+      stats: [],
+      categoryAlreadyExistsError: false,
+      categoryText: '',
+      categories: [],
+      totalAverage: 0
+    });
+  };
+
   render() {
     const {
       text,
-      // paramText,
       categoryText,
-      stats,
-      categoryAlreadyExistsError
+      categoryAlreadyExistsError,
+      totalAverage,
+      loading
     } = this.state;
 
     return (
       <React.Fragment>
+        {loading && <LinearProgress style={muiStyles.progressStyle} variant="query" />}
         <h1 className={styles.header}>Q-sorting</h1>
         <div className={styles.mainBlock}>
           <div className={styles.left}>
-            <div className={styles.inputRow}>
+            <TextField
+              multiline
+              required
+              error={categoryAlreadyExistsError}
+              id="lab1-textarea"
+              label="Source text"
+              rows="16"
+              placeholder="Enter source text here"
+              className={styles.textarea}
+              margin="normal"
+              onChange={this.textareaChangeHanlder}
+              onBlur={this.textareaBlurHandler}
+              value={text}
+              disabled={loading}
+            />
+            <div className={styles.parameters}>
+              <p className={styles.paramDescr}>
+                Enter category here. Don't repeat it.
+              </p>
+              {
+                categoryAlreadyExistsError &&
+                <p className={styles.paramError}>
+                  You've already entered this value!
+                </p>
+              }
               <TextField
-                multiline
                 required
                 error={categoryAlreadyExistsError}
-                id="lab1-textarea"
-                label="Source text"
-                rows="8"
-                placeholder="Enter source text here"
-                className={styles.textarea}
+                id="lab1-categories-input"
+                label="Categories"
+                placeholder="Enter category here"
+                className={styles.textField}
                 margin="normal"
-                onChange={this.textareaChangeHanlder}
-                onBlur={this.textareaBlurHandler}
-                value={text}
+                onChange={this.categoryChangeHandler}
+                onKeyPress={this.categorySubmitHandler}
+                value={categoryText}
+                disabled={loading}
               />
-              <div className={styles.parameters}>
-                <p className={styles.paramDescr}>
-                  Enter search value here.<br />Each time you type a new value, previous will be saved.
-                </p>
-                {
-                  categoryAlreadyExistsError &&
-                  <p className={styles.paramError}>
-                    You've already searched this value!
-                    </p>
-                }
-                <TextField
-                  required
-                  error={categoryAlreadyExistsError}
-                  id="lab1-categories-input"
-                  label="Categories"
-                  placeholder="Enter category here"
-                  className={styles.textField}
-                  margin="normal"
-                  onChange={this.categoryChangeHandler}
-                  onKeyPress={this.categorySubmitHandler}
-                  value={categoryText}
-                />
+              <div className={styles.buttonBlock}>
+                <Fab disabled={loading} variant="extended" aria-label="Start" style={muiStyles.startButtonStyle} onClick={this.start}>
+                  <PlayArrow style={muiStyles.iconStyle} />
+                  Start
+                </Fab>
+                <Fab disabled={loading} variant="extended" aria-label="Delete" style={muiStyles.deleteButtonStyle} onClick={this.clearAll}>
+                  <Delete style={muiStyles.iconStyle} />
+                  Clear
+                </Fab>
               </div>
             </div>
-            <div className='categoryBlock'>
-              <button onClick={this.start}>Start</button>
-              {this.renderCategories()}
-            </div>
           </div>
-          <div className={styles.stats}>
-            <h2 className={styles.statsHeader}>
-              Search values stats
-            </h2>
-            <div className={styles.statsList}>
+          <div className={styles.right}>
+            <h2 className={styles.categoryBlockHeader}>
+              Categories
               {
-                stats.map((item, index) => (
-                  <p key={index} className={styles.statsItem}>
-                    <span className={styles.statItemName}>
-                      {`${item.param}`}
-                    </span>
-                    <span className={styles.statItemValues}>
-                      {`${item.count} | ${item.percent}`}
-                    </span>
-                  </p>
-                ))
+                totalAverage ? (<span>Total average: {totalAverage}</span>) : null
               }
+            </h2>
+            <div className={styles.categoryBlock}>
+              {this.renderCategories()}
             </div>
           </div>
         </div>
