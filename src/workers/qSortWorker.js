@@ -5,11 +5,13 @@ export default () => {
     const { categories, wordsNumber, text } = e.data;
 
     if (!categories || !categories.length) {
+      postMessage(categories);
       return;
     }
 
     categories.forEach(category => {
       if (!category.params || !category.params.length) {
+        postMessage(categories);
         return;
       }
 
