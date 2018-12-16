@@ -9,7 +9,8 @@ import { Switch, Route } from 'react-router';
 
 import {
   Home,
-  Lab1
+  Lab1,
+  Lab2
 } from './components';
 
 class App extends Component {
@@ -42,6 +43,7 @@ class App extends Component {
               <Switch>
                 <Route exact path="/" component={Home} />
                 <Route exact path="/lab1" component={Lab1} />
+                <Route exact path="/lab2" component={Lab2} />
               </Switch>
             </div>
           </div>
