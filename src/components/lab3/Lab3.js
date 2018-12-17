@@ -13,6 +13,7 @@ import * as muiStyles from './../../muiStyles';
 
 import WebWorker from '../../webWorker';
 import countInTextWorker from './../../workers/countInTextWorker.js';
+import fileScanWorker from './../../workers/fileScanWorker.js';
 
 import { classnames } from '../../heplers';
 
@@ -42,19 +43,21 @@ export class Lab3 extends Component {
 
     this.setState({ loading: true });
 
-    const reader = new FileReader();
-    reader.onload = () => {
+    this.worker = new WebWorker(fileScanWorker);
 
-      const text = reader.result;
+    this.worker.onmessage = e => {
+      const { text } = e.data;
 
       this.setState({
-        text: text.replace(/\r?\n|\r/g, ""),
+        text,
         wordsNumber: this.countWords(text),
         loading: false
       });
+
+      this.worker.terminate();
     };
 
-    reader.readAsText(files[0]);
+    this.worker.postMessage({ files });
   };
 
   paramChangeHandler = e =>
@@ -195,7 +198,7 @@ export class Lab3 extends Component {
                   onChange={this.handleFIleUpload}
                 />
                 <label htmlFor="raised-button-file">
-                  <Button variant="contained" component="span" style={muiStyles.uploadButtonStyle}>
+                  <Button disabled={loading} variant="contained" component="span" style={muiStyles.uploadButtonStyle}>
                     <AttachFile style={muiStyles.iconStyle} />
                     Upload
                   </Button>

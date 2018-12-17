@@ -37,7 +37,7 @@ export class Lab4 extends Component {
   textareaBlurHandler = e => {
     const text = e.target.value;
     const parsedText = new DOMParser().parseFromString(text, 'text/html');
-    const tmp = parsedText.body.textContent || "";
+    const tmp = parsedText ? parsedText.body.textContent : '';
     const result = tmp
       .replace(/\s+/g, " ")
       .trim()
