@@ -23,3 +23,11 @@ export const deleteButtonStyle = {
   color: 'white',
   marginRight: 20
 };
+
+export const uploadButtonStyle = {
+  width: 150,
+  height: '100%',
+  backgroundColor: '#2196f3',
+  color: 'white',
+  marginRight: 20
+};

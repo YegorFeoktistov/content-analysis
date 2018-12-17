@@ -10,7 +10,9 @@ import { Switch, Route } from 'react-router';
 import {
   Home,
   Lab1,
-  Lab2
+  Lab2,
+  Lab3,
+  Lab4
 } from './components';
 
 class App extends Component {
@@ -37,6 +39,9 @@ class App extends Component {
                 <li className={styles.navItem}>
                   <Link to="lab3" className={styles.navLink}>Lab 3</Link>
                 </li>
+                <li className={styles.navItem}>
+                  <Link to="lab4" className={styles.navLink}>Lab 4</Link>
+                </li>
               </ul>
             </div>
             <div className={styles.main}>
@@ -44,6 +49,8 @@ class App extends Component {
                 <Route exact path="/" component={Home} />
                 <Route exact path="/lab1" component={Lab1} />
                 <Route exact path="/lab2" component={Lab2} />
+                <Route exact path="/lab3" component={Lab3} />
+                <Route exact path="/lab4" component={Lab4} />
               </Switch>
             </div>
           </div>
